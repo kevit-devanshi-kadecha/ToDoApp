@@ -1,0 +1,26 @@
+﻿@model ToDoAppEntities.MyTask;
+
+@{
+    ViewBag.Title = "Create Task";
+}
+<a asp-controller="ToDo" asp-action="Index" class="link-hover">Back ToDoList</a>
+
+<h2>Create New Task</h2>
+<div class="w-75">
+    <form asp-controller="ToDo" asp-action="Create" method="post">
+        <div class="form-field flex">
+            <label asp-for="Title" class="form-label pt">New Task</label>
+            <input asp-for="Title" class="form-input flex-1" placeholder="Enter your task" type="text" />
+            <span asp-validation-for="Title" class="text-red"></span>
+        </div>
+        <div class="form-field flex">
+            <label asp-for="Description" class="form-label pt">Description</label>
+            <input asp-for="Description" class="form-input flex-1" type="text" />
+            <span asp-validation-for="Description" class="text-red"></span>
+        </div>
+
+        <div class="form-field flex">
+            <button type="submit" class="button button-blue-back">Create</button>
+        </div>
+    </form>
+</div>
