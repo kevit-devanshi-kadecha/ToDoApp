@@ -3,6 +3,7 @@ using ToDoAppServiceContracts.DTO;
 using ToDoAppEntities;
 using Microsoft.EntityFrameworkCore;
 using System;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ToDoAppService
 {
@@ -27,56 +28,59 @@ namespace ToDoAppService
             };
         }
 
-        public TaskResponse AddTask(TaskAddRequest taskAddRequest)
+        public TaskResponse AddTask(TaskAddRequest? taskAddRequest)
         {
+            if (taskAddRequest == null)
+            {
+                return new TaskResponse
+                {
+                    ErrorMessage = "Please add the details of task"
+                };
+            }
             MyTask myTask = taskAddRequest.NewTask();
 
             _taskDbContext.MyTasks.Add(myTask);
             _taskDbContext.SaveChanges();
-
             return ConvertTaskToTaskResponse(myTask);
         }
 
         public List<TaskResponse> GetAllTasks()
         {
-            return _taskDbContext.MyTasks
-                .Select(task => ConvertTaskToTaskResponse(task)).ToList();
+            //return _taskDbContext.MyTasks
+            //    .Select(task => ConvertTaskToTaskResponse(task)).ToList();
+
+            //using SP 
+            return _taskDbContext.sp_GetTasks().Select(temp => ConvertTaskToTaskResponse(temp)).ToList();  
         }
 
         public async Task<TaskResponse> GetTaskById(int taskId)
         {
-            if (taskId == null)
-            {
-               return null;
-            }
-            MyTask? myTask = _taskDbContext.MyTasks.FirstOrDefault(temp => temp.TaskId == taskId); ;
-
-            return ConvertTaskToTaskResponse(myTask);
+            MyTask? myTask = await _taskDbContext.MyTasks.FirstOrDefaultAsync(temp => temp.TaskId == taskId); 
+            return ConvertTaskToTaskResponse(myTask!);
         }
-        public TaskResponse UpdateTask(TaskUpdateRequest taskUpdateRequest)
+
+        public async Task<TaskResponse> UpdateTask(TaskResponse taskRequest)
         {
-            MyTask task = taskUpdateRequest.NewTask();
+            MyTask? task = await _taskDbContext.MyTasks.FirstOrDefaultAsync(t => t.TaskId == taskRequest.TaskId);
 
-            task.Title = taskUpdateRequest.Title;
-            task.Description = taskUpdateRequest.Description;
-            task.IsCompleted = taskUpdateRequest.IsCompleted;
+            task!.Title = taskRequest.Title;
+            task.Description = taskRequest.Description;
+            task.IsCompleted = taskRequest.IsCompleted;
 
-            _taskDbContext.SaveChanges();
-
+            await _taskDbContext.SaveChangesAsync();
             return ConvertTaskToTaskResponse(task);
         }
 
-        public bool DeleteTask(int taskId)
+        public async Task<bool> DeleteTask(int taskId)
         {
-            var task = _taskDbContext.MyTasks.FirstOrDefault(t => t.TaskId == taskId);
+            MyTask? task = await _taskDbContext.MyTasks.FirstOrDefaultAsync(t => t.TaskId == taskId);
             if (task == null)
             {
                 return false;
             }
 
             _taskDbContext.MyTasks.Remove(task);
-            _taskDbContext.SaveChanges();
-
+            await _taskDbContext.SaveChangesAsync();
             return true;
         }
     }

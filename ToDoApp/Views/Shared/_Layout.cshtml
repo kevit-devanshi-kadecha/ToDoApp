@@ -8,8 +8,24 @@
 </head>
 <body>
     <h1>My ToDo App</h1>
-    <div>
+    <br />
+
+    <div class="navbar">
+        <ul>
+            <li>
+                <a asp-controller="ToDo" asp-action="Index">Tasks</a>
+            </li>
+            <li>
+                <a asp-controller="ToDo" asp-action="Create">Create Your Task</a>
+            </li>
+        </ul>
+    </div>
+   
+    <div class="page-content">
         @RenderBody()
     </div>
 </body>
 </html>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>

@@ -19,9 +19,13 @@ namespace ToDoAppEntities
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<MyTask>().ToTable("DetailofEmployees");
+            modelBuilder.Entity<MyTask>().ToTable("MyTaskDetails");
         }
 
-     
+        // invoking the Sp 
+        public List<MyTask> sp_GetTasks()
+        {
+            return MyTasks.FromSqlRaw("Execute [dbo].[GetTasks]").ToList();
+        }
     }
 }

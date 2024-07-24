@@ -8,6 +8,7 @@
 <h2>Create New Task</h2>
 <div class="w-75">
     <form asp-controller="ToDo" asp-action="Create" method="post">
+
         <div class="form-field flex">
             <label asp-for="Title" class="form-label pt">New Task</label>
             <input asp-for="Title" class="form-input flex-1" placeholder="Enter your task" type="text" />
@@ -19,8 +20,9 @@
             <span asp-validation-for="Description" class="text-red"></span>
         </div>
 
-        <div class="form-field flex">
-            <button type="submit" class="button button-blue-back">Create</button>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         </div>
     </form>
 </div>

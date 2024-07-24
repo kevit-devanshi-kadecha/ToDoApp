@@ -17,6 +17,7 @@ namespace ToDoApp.Controllers
         {
             _taskService = taskService;
         }
+
         [Route("/")]
         [Route("[action]")]
         public IActionResult Index()
@@ -51,57 +52,60 @@ namespace ToDoApp.Controllers
         }
 
         [HttpGet]
-        [Route("[action]/{taskId}")] 
-        public async Task<IActionResult> Edit(int taskId)
+        [Route("[action]")]
+        public async Task<IActionResult> Edit([FromQuery] int id)
         {
-            TaskResponse? taskResponse = await _taskService.GetTaskById(taskId);
+            TaskResponse? taskResponse = await _taskService.GetTaskById(id);
             if (taskResponse == null)
             {
                 return RedirectToAction("Index");
             }
 
-            TaskUpdateRequest taskUpdateRequest = taskResponse.ToUpdateTask();
-            return View(taskUpdateRequest);
+            TaskResponse taskEditRequest = new TaskResponse
+            {
+                TaskId = taskResponse.TaskId,
+                Title = taskResponse.Title,
+                Description = taskResponse.Description,
+                IsCompleted = taskResponse.IsCompleted
+            };
+            return View(taskEditRequest);
         }
 
         [HttpPost]
-        [Route("[action]/{taskId}")]
-        public async Task<IActionResult> Edit(TaskUpdateRequest taskUpdateRequest)
+        [Route("[action]")]
+        public async Task<IActionResult> EditTask(TaskResponse taskRequest)
         {
-
-            TaskResponse? taskResponse = await _taskService.GetTaskById(taskUpdateRequest.TaskId);
-            if (taskResponse == null)
+            TaskResponse? updatedtaskResponse = await _taskService.UpdateTask(taskRequest);
+            if (updatedtaskResponse == null)
             {
                 return RedirectToAction("Index");
             }
-
             return RedirectToAction("Index");
         }
 
         [HttpGet]
-        [Route("[action]/{taskId}")]
-        public async Task<IActionResult> Delete(int taskId)
+        [Route("[action]")]
+        public async Task<IActionResult> Delete([FromQuery] int id)
         {
-            TaskResponse? taskResponse = await _taskService.GetTaskById(taskId);
+            TaskResponse taskResponse = await _taskService.GetTaskById(id);
             if (taskResponse == null)
             {
                 return RedirectToAction("Index");
             }
-            
             return View(taskResponse);
         }
-        
+
         [HttpPost]
-        [Route("[action]/{taskId}")]
-        public IActionResult Delete(TaskResponse taskResponse)
+        [Route("[action]")]
+        public async Task<IActionResult> DeleteConfirmed(int taskId)
         {
-            bool isDeleted = _taskService.DeleteTask(taskResponse.TaskId);
+            bool isDeleted = await _taskService.DeleteTask(taskId);
             if (!isDeleted)
             {
                 return RedirectToAction("Index");
             }
-
             return RedirectToAction("Index");
         }
     }
 }
+

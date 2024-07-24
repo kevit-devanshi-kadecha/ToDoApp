@@ -10,8 +10,8 @@ namespace ToDoAppServiceContracts
 
         Task<TaskResponse> GetTaskById(int taskId);
 
-        TaskResponse UpdateTask(TaskUpdateRequest taskUpdateRequest);
+        Task<TaskResponse> UpdateTask(TaskResponse taskRequest);
 
-        bool DeleteTask(int taskId);
+        Task<bool> DeleteTask(int taskId);
     }
 }

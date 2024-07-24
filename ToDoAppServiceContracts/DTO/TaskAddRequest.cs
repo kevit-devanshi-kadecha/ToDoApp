@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,24 +11,18 @@ namespace ToDoAppServiceContracts.DTO
 {
     public class TaskAddRequest
     {
-        public int TaskId { get; set; }
         public string Title { get; set; }
-        public string? Description { get; set; }
-        public bool IsCompleted { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public string Description { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         public MyTask NewTask()
         {
             return new MyTask()
             {
-                TaskId = TaskId,
                 Title = Title,
-                Description = Description,
-                IsCompleted = IsCompleted,
+                Description = Description!,
                 CreatedDate = CreatedDate
             };
         }
     }
-
-    
 }
