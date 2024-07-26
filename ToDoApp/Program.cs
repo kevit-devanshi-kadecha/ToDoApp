@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using ToDoApp.Filters.ActionsFilter;
 using ToDoAppEntities;
 using ToDoAppService;
 using ToDoAppServiceContracts;
@@ -21,7 +22,14 @@ namespace ToDoApp
                 .ReadFrom.Services(services); //read out current app's services and make them available to serilog
             });
 
-            builder.Services.AddControllersWithViews();
+            //builder.Services.AddControllersWithViews();
+            // for adding the global filters in Controllers we use this 
+            builder.Services.AddControllersWithViews(options =>
+            {
+                var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<ResponseHeaderActionFilter>>();
+
+                options.Filters.Add(new ResponseHeaderActionFilter(logger, "my-globalkey", "my-globalvalue"));
+            });
 
             var connString = builder.Configuration.GetConnectionString("DefaultConnectionString");
             builder.Services.AddDbContext<TaskDbContext>(options =>

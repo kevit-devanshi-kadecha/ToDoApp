@@ -1,11 +1,13 @@
 ﻿using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rotativa.AspNetCore;
 using Serilog;
 using System.Threading.Tasks;
+using ToDoApp.Filters.ActionsFilter;
 using ToDoAppService;
 using ToDoAppServiceContracts;
 using ToDoAppServiceContracts.DTO;
@@ -47,6 +49,7 @@ namespace ToDoApp.Controllers
 
         [Route("[action]")]
         [HttpPost]
+        [TypeFilter(typeof(ResponseHeaderActionFilter), Arguments = new object[]{"X-Custom-key", "Custom-Value"})]
         public IActionResult Create(TaskAddRequest taskAddRequest)
         {
             _logger.LogInformation("CreateTask method of ToDoController is executed");
@@ -65,6 +68,7 @@ namespace ToDoApp.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        
         public async Task<IActionResult> Edit([FromQuery] int id)
         {
             //for seeing values of paramter use debug log level 
@@ -118,8 +122,10 @@ namespace ToDoApp.Controllers
 
         [HttpPost]
         [Route("[action]")]
+        [TypeFilter(typeof(GetTaskByIDActionFilter))]
         public async Task<IActionResult> DeleteConfirmed(int taskId)
         {
+
             bool isDeleted = await _taskService.DeleteTask(taskId);
             if (!isDeleted)
             {
@@ -130,6 +136,7 @@ namespace ToDoApp.Controllers
         }
 
         [Route("[action]")]
+        [TypeFilter(typeof(ResponseHeaderActionFilter), Arguments = new object[] { "X-Key", "X-Value" }, Order = 1), ]
         public async Task<IActionResult> TaskPdf()
         {
             List<TaskResponse> tasks = await Task.Run(() => _taskService.GetAllTasks());
