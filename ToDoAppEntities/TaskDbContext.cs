@@ -11,9 +11,8 @@ namespace ToDoAppEntities
     {
         public TaskDbContext(DbContextOptions<TaskDbContext> options) : base(options)
         {
-
+           
         }
-
         public DbSet<MyTask> MyTasks { get; set; }
      
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,7 +24,7 @@ namespace ToDoAppEntities
         // invoking the Sp 
         public List<MyTask> sp_GetTasks()
         {
-            return MyTasks.FromSqlRaw("Execute [dbo].[GetTasks]").ToList();
+            return MyTasks.FromSqlRaw("Execute [dbo].[GetTasks]").ToList();    
         }
     }
 }

@@ -1,0 +1,47 @@
+﻿@model IEnumerable<ToDoAppServiceContracts.DTO.TaskResponse>
+
+@{
+    Layout = null;
+}
+<link href="@("http://" + Context.Request.Host.ToString() + "/Stylesheet.css")" rel="stylesheet"/>
+<style>
+    .completed td {
+        text-decoration: line-through;
+        color: gray;
+    }
+</style>
+<h2>Tasks</h2>
+<table class="table w-100">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Is Completed</th>
+            <th>Created Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="@(item.IsCompleted ? "completed" : "")">
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @if (item.IsCompleted)
+                    {
+                        <span>Completed</span>
+                    }
+                    else
+                    {
+                        <span>On Going</span>
+                    }
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.CreatedDate)</td>
+            </tr>
+        }
+    </tbody>
+</table>

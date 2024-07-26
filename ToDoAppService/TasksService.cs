@@ -4,16 +4,19 @@ using ToDoAppEntities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace ToDoAppService
 {
     public class TasksService : ITasksService
     {
         private readonly TaskDbContext _taskDbContext;
+        private readonly ILogger<TasksService> _logger;
 
-        public TasksService(TaskDbContext taskDbContext)
+        public TasksService(TaskDbContext taskDbContext, ILogger<TasksService> logger)
         {
             _taskDbContext = taskDbContext;
+            _logger = logger;
         }
 
         private static TaskResponse ConvertTaskToTaskResponse(MyTask newtask)
@@ -55,6 +58,8 @@ namespace ToDoAppService
 
         public async Task<TaskResponse> GetTaskById(int taskId)
         {
+            _logger.LogInformation("GetTaskById of TasksService");
+
             MyTask? myTask = await _taskDbContext.MyTasks.FirstOrDefaultAsync(temp => temp.TaskId == taskId); 
             return ConvertTaskToTaskResponse(myTask!);
         }

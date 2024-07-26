@@ -1,10 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Rotativa.AspNetCore;
+using Serilog;
 using System.Threading.Tasks;
 using ToDoAppService;
 using ToDoAppServiceContracts;
 using ToDoAppServiceContracts.DTO;
+using Operation = SerilogTimings.Operation;
 
 namespace ToDoApp.Controllers
 {
@@ -12,10 +17,14 @@ namespace ToDoApp.Controllers
     public class ToDoController : Controller
     {
         private readonly ITasksService _taskService;
+        private readonly ILogger<ToDoController> _logger;
+        private readonly IDiagnosticContext _diagnosticContext;
 
-        public ToDoController(ITasksService taskService)
+        public ToDoController(ITasksService taskService, ILogger<ToDoController> logger, IDiagnosticContext diagnosticContext)
         {
             _taskService = taskService;
+            _logger = logger;
+            _diagnosticContext = diagnosticContext;
         }
 
         [Route("/")]
@@ -23,6 +32,7 @@ namespace ToDoApp.Controllers
         public IActionResult Index()
         {
             List<TaskResponse> tasks = _taskService.GetAllTasks();
+            _diagnosticContext.Set("Tasks", tasks);
             ViewBag.Title = "TODO App";
             return View(tasks);
         }
@@ -31,6 +41,7 @@ namespace ToDoApp.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            _logger.LogInformation("Create method of ToDoController is executed");
             return View();
         }
 
@@ -38,6 +49,7 @@ namespace ToDoApp.Controllers
         [HttpPost]
         public IActionResult Create(TaskAddRequest taskAddRequest)
         {
+            _logger.LogInformation("CreateTask method of ToDoController is executed");
             if (taskAddRequest == null)
             {
                 return View();
@@ -55,12 +67,16 @@ namespace ToDoApp.Controllers
         [Route("[action]")]
         public async Task<IActionResult> Edit([FromQuery] int id)
         {
+            //for seeing values of paramter use debug log level 
+            _logger.LogDebug($"TaskId: {id}");
+            _logger.LogInformation("Edit method of ToDoController is executed");
+
             TaskResponse? taskResponse = await _taskService.GetTaskById(id);
             if (taskResponse == null)
             {
                 return RedirectToAction("Index");
             }
-
+            _logger.LogInformation("GetTaskById method is executed");
             TaskResponse taskEditRequest = new TaskResponse
             {
                 TaskId = taskResponse.TaskId,
@@ -75,10 +91,14 @@ namespace ToDoApp.Controllers
         [Route("[action]")]
         public async Task<IActionResult> EditTask(TaskResponse taskRequest)
         {
-            TaskResponse? updatedtaskResponse = await _taskService.UpdateTask(taskRequest);
-            if (updatedtaskResponse == null)
+            _logger.LogInformation("EditTask method of ToDoController is executed");
+            using (Operation.Time("Time For updating task"))
             {
-                return RedirectToAction("Index");
+                TaskResponse? updatedtaskResponse = await _taskService.UpdateTask(taskRequest);
+                if (updatedtaskResponse == null)
+                {
+                    return RedirectToAction("Index");
+                }
             }
             return RedirectToAction("Index");
         }
@@ -87,6 +107,7 @@ namespace ToDoApp.Controllers
         [Route("[action]")]
         public async Task<IActionResult> Delete([FromQuery] int id)
         {
+            _logger.LogInformation("Delete method of ToDoController is executed");
             TaskResponse taskResponse = await _taskService.GetTaskById(id);
             if (taskResponse == null)
             {
@@ -104,7 +125,16 @@ namespace ToDoApp.Controllers
             {
                 return RedirectToAction("Index");
             }
+            _logger.LogInformation("Task Deleted successfully");
             return RedirectToAction("Index");
+        }
+
+        [Route("[action]")]
+        public async Task<IActionResult> TaskPdf()
+        {
+            List<TaskResponse> tasks = await Task.Run(() => _taskService.GetAllTasks());
+
+            return new ViewAsPdf("TasksPDF", tasks, ViewData);
         }
     }
 }

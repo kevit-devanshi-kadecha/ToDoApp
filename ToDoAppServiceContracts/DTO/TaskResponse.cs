@@ -17,5 +17,11 @@ namespace ToDoAppServiceContracts.DTO
         public bool IsCompleted { get; set; }
         public DateTime CreatedDate { get; set; }
         public string? ErrorMessage { get; set; }
+
+        public override string ToString()
+        {
+            return $"TaskId: {TaskId}, Title: {Title}, Description: {Description},IsCompleted: {IsCompleted},CreatedDate: {CreatedDate} ";
+        }
     }
+    
 }

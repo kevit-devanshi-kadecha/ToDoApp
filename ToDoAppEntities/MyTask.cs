@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading.Tasks;
 
 namespace ToDoAppEntities
 {
@@ -16,5 +18,7 @@ namespace ToDoAppEntities
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
+       
     }
+    
 }
